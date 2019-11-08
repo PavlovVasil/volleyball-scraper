@@ -18,6 +18,9 @@ const breakIntoTables = ($, nodeListArray, selector) => {
             result.push(currentTable);
             currentTable = [];
             currentTable.push(nodeListArray[i]);
+            
+            //skipping the first row of each table, as it contains empty links
+            i++
         }
     }
     return result;
