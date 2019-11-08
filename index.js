@@ -1,5 +1,7 @@
 const cheerio = require('cheerio');
 const axios = require('axios');
+const mongoose = require('mongoose');
+require('dotenv/config')
 
 //take nodeList and break it down into several separate tables. The first element in each table is its header.
 const breakIntoTables = ($, nodeListArray, selector) => {
@@ -10,7 +12,7 @@ const breakIntoTables = ($, nodeListArray, selector) => {
         if ($(nodeListArray[i]).attr('bgcolor') !== selector) {
             currentTable.push(nodeListArray[i]);
             //if this is the last item, add the last chunk
-            if (i === nodeListArray.length -1){
+            if (i === nodeListArray.length - 1) {
                 result.push(currentTable);
             }
         } else {
@@ -18,7 +20,7 @@ const breakIntoTables = ($, nodeListArray, selector) => {
             result.push(currentTable);
             currentTable = [];
             currentTable.push(nodeListArray[i]);
-            
+
             //skipping the first row of each table, as it contains empty links
             i++
         }
@@ -27,6 +29,12 @@ const breakIntoTables = ($, nodeListArray, selector) => {
 }
 
 (async () => {
+    mongoose.connect(
+        process.env.DB_CONNECTION,
+        { useNewUrlParser: true },
+        () => {
+            console.log('connected to DB')
+        })
     try {
         const response = await axios.get('https://volleymania.com/standings');
         //loading response in cheerio
@@ -35,7 +43,7 @@ const breakIntoTables = ($, nodeListArray, selector) => {
         const allTableRows = Array.from($('#content .mainContent table tbody tr'));
         allTableRows.unshift(mainRankingTitle);
         const tables = breakIntoTables($, allTableRows, "#FFFFFF");
-        
+
         console.log(tables)
     } catch (err) {
         console.log(err)
