@@ -1,6 +1,7 @@
 const cheerio = require('cheerio');
 const axios = require('axios');
 const mongoose = require('mongoose');
+const Ranking = require('./models/Ranking');
 require('dotenv/config')
 
 //take nodeList and break it down into several separate tables. The first element in each table is its header.
@@ -43,6 +44,8 @@ const breakIntoTables = ($, nodeListArray, selector) => {
         const allTableRows = Array.from($('#content .mainContent table tbody tr'));
         allTableRows.unshift(mainRankingTitle);
         const tables = breakIntoTables($, allTableRows, "#FFFFFF");
+
+        
 
         console.log(tables)
     } catch (err) {
