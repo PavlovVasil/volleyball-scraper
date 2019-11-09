@@ -32,7 +32,7 @@ const breakIntoTables = ($, nodeListArray, selector) => {
 (async () => {
     mongoose.connect(
         process.env.DB_CONNECTION,
-        { useNewUrlParser: true },
+        { useNewUrlParser: true, useUnifiedTopology: true },
         () => {
             console.log('connected to DB')
         })
@@ -45,9 +45,29 @@ const breakIntoTables = ($, nodeListArray, selector) => {
         allTableRows.unshift(mainRankingTitle);
         const tables = breakIntoTables($, allTableRows, "#FFFFFF");
 
-        
+        //testing the DB
+        const ranking = new Ranking({
+            title: 'String',
+            team: 'String',
+            scorePlusCupScore: 1,
+            cupScore: 1,
+            matches: 1,
+            wins: 1,
+            losses: 1,
+            games: 1,
+            gameRatio: 1,
+            scoreDifference: 1,
+            scoreRatio: 1
+        });
 
-        console.log(tables)
+        try{
+            const savedRanking = await ranking.save();
+            console.log(savedRanking);
+        } catch (err){
+            console.log(err);
+        }
+
+        console.log(tables);
     } catch (err) {
         console.log(err)
     }
