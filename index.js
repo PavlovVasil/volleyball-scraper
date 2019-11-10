@@ -1,7 +1,7 @@
 const cheerio = require('cheerio');
 const axios = require('axios');
 const mongoose = require('mongoose');
-const Ranking = require('./models/Ranking');
+const RankingSchema = require('./schema/RankingSchema');
 require('dotenv/config')
 
 //take nodeList and break it down into several separate tables. The first element in each table is its header.
@@ -30,7 +30,7 @@ const breakIntoTables = ($, nodeListArray, selector) => {
 }
 
 // convert a table to a RankingModel
-const convertTableToRankingModel = ($, table) => {
+const convertTableToCollection = ($, table) => {
     const collectionName = $(table).eq(0).text().replace(/"/g,"");
     const teams = [];
 
@@ -63,36 +63,23 @@ const convertTableToRankingModel = ($, table) => {
         })
     try {
         const response = await axios.get('https://volleymania.com/standings');
-        //loading response in cheerio
+        //parsing the response with cheerio
         const $ = cheerio.load(response.data);
         const mainRankingTitle = $('#content .mainContent h3')[0];
         const allTableRows = Array.from($('#content .mainContent table tbody tr'));
         allTableRows.unshift(mainRankingTitle);
         const tables = breakIntoTables($, allTableRows, "#FFFFFF");
-        convertTableToRankingModel($, tables[0])
-        //testing the DB
-        const ranking = new Ranking({
-            title: 'String',
-            team: 'String',
-            scorePlusCupScore: 1,
-            cupScore: 1,
-            matches: 1,
-            wins: 1,
-            losses: 1,
-            games: 1,
-            gameRatio: 1,
-            scoreDifference: 1,
-            scoreRatio: 1
-        });
-
-        try{
-            const savedRanking = await ranking.save();
-            console.log(savedRanking);
-        } catch (err){
-            console.log(err);
+        const firstTable = convertTableToCollection($, tables[0]);
+        
+        
+        const Ranking = mongoose.model(firstTable.collectionName, RankingSchema);
+        
+        try {
+            await Ranking.insertMany(firstTable.teams);
+        } catch (err) {
+            console.log(err)
         }
 
-        console.log(tables);
     } catch (err) {
         console.log(err)
     }
