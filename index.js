@@ -2,7 +2,7 @@ const cheerio = require('cheerio');
 const axios = require('axios');
 const mongoose = require('mongoose');
 const RankingSchema = require('./schema/RankingSchema');
-require('dotenv/config')
+require('dotenv/config');
 
 //take nodeList and break it down into several separate tables. The first element in each table is its header.
 const breakIntoTables = ($, nodeListArray, selector) => {
@@ -59,7 +59,7 @@ const convertTableToCollectionObj = ($, table) => {
         process.env.DB_CONNECTION,
         { useNewUrlParser: true, useUnifiedTopology: true },
         () => {
-            console.log('connected to DB')
+            console.log('connected to DB');
         })
     try {
         const response = await axios.get('https://volleymania.com/standings');
@@ -69,18 +69,17 @@ const convertTableToCollectionObj = ($, table) => {
         const allTableRows = Array.from($('#content .mainContent table tbody tr'));
         allTableRows.unshift(mainRankingTitle);
         const tables = breakIntoTables($, allTableRows, "#FFFFFF");
+        
         for (table of tables) {
             const collectionObj = convertTableToCollectionObj($, table);
             let Ranking = mongoose.model(collectionObj.collectionName, RankingSchema);
-        
             try {
                 await Ranking.insertMany(collectionObj.teams);
             } catch (err) {
-                console.log(err)
+                console.log(err);
             }
         }
-        //const firstTable = convertTableToCollectionObj($, tables[0]);
     } catch (err) {
-        console.log(err)
+        console.log(err);
     }
 })()
