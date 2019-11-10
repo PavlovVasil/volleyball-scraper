@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const RankingSchema = mongoose.Schema({
-    ranking: Number,
+    teamRanking: Number,
     teamName: String,
     scorePlusCupScore: Number,
     cupScore: Number,
@@ -14,4 +14,5 @@ const RankingSchema = mongoose.Schema({
     scoreRatio: Number
 })
 
-module.exports = mongoose.model('Rankings', RankingSchema)
+//module.exports = mongoose.model('Rankings', RankingSchema)
+module.exports = RankingSchema;
