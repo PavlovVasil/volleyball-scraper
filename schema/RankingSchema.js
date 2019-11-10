@@ -9,7 +9,7 @@ const RankingSchema = mongoose.Schema({
     wins: Number,
     losses: Number,
     games: String,
-    gameRatio: Number,
+    gameRatio: Object,
     scoreDifference: String,
     scoreRatio: Number
 })

@@ -17,7 +17,7 @@ const breakIntoTables = ($, nodeListArray, selector) => {
                 result.push(currentTable);
             }
         } else {
-            //add chunk, empty it and add he current title to the next chunk
+            //adding the chunk to the final result, emptying it, and adding the current title to the next chunk
             result.push(currentTable);
             currentTable = [];
             currentTable.push(nodeListArray[i]);
@@ -29,14 +29,14 @@ const breakIntoTables = ($, nodeListArray, selector) => {
     return result;
 }
 
-// convert a table to a RankingModel
-const convertTableToCollection = ($, table) => {
+// convert a table to an object, containing the collection name and the documents to be stored in the DB
+const convertTableToCollectionObj = ($, table) => {
     const collectionName = $(table).eq(0).text().replace(/"/g,"");
     const teams = [];
 
     for (let i = 1; i < table.length; i++) {
         const currentRow = $(table).eq(i).find('td');
-        const team = {}
+        const team = {};
         team.teamRanking = parseInt(currentRow.eq(0).text(), 10);
         team.teamName = currentRow.eq(1).text();
         team.scorePlusCupScore = parseInt(currentRow.eq(2).text(), 10);
@@ -45,13 +45,13 @@ const convertTableToCollection = ($, table) => {
         team.wins = parseInt(currentRow.eq(5).text(), 10);
         team.losses = parseInt(currentRow.eq(6).text(), 10);
         team.games = currentRow.eq(7).text();
-        team.gameRatio = parseFloat(currentRow.eq(8).text());
+        team.gameRatio = currentRow.eq(8).text() === 'max' ? 'max' : parseFloat(currentRow.eq(8).text());
         team.scoreDifference = currentRow.eq(9).text();
         team.scoreRatio = parseFloat(currentRow.eq(10).text());
         teams.push(team);
     }
     
-    return {collectionName: collectionName, teams: teams}
+    return {collectionName: collectionName, teams: teams};
 }
 
 (async () => {
@@ -69,17 +69,17 @@ const convertTableToCollection = ($, table) => {
         const allTableRows = Array.from($('#content .mainContent table tbody tr'));
         allTableRows.unshift(mainRankingTitle);
         const tables = breakIntoTables($, allTableRows, "#FFFFFF");
-        const firstTable = convertTableToCollection($, tables[0]);
+        for (table of tables) {
+            const collectionObj = convertTableToCollectionObj($, table);
+            let Ranking = mongoose.model(collectionObj.collectionName, RankingSchema);
         
-        
-        const Ranking = mongoose.model(firstTable.collectionName, RankingSchema);
-        
-        try {
-            await Ranking.insertMany(firstTable.teams);
-        } catch (err) {
-            console.log(err)
+            try {
+                await Ranking.insertMany(collectionObj.teams);
+            } catch (err) {
+                console.log(err)
+            }
         }
-
+        //const firstTable = convertTableToCollectionObj($, tables[0]);
     } catch (err) {
         console.log(err)
     }
