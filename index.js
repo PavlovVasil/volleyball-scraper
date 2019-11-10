@@ -29,6 +29,31 @@ const breakIntoTables = ($, nodeListArray, selector) => {
     return result;
 }
 
+// convert a table to a RankingModel
+const convertTableToRankingModel = ($, table) => {
+    const collectionName = $(table).eq(0).text().replace(/"/g,"");
+    const teams = [];
+
+    for (let i = 1; i < table.length; i++) {
+        const currentRow = $(table).eq(i).find('td');
+        const team = {}
+        team.teamRanking = parseInt(currentRow.eq(0).text(), 10);
+        team.teamName = currentRow.eq(1).text();
+        team.scorePlusCupScore = parseInt(currentRow.eq(2).text(), 10);
+        team.cupScore = parseInt(currentRow.eq(3).text(), 10);
+        team.matches = parseInt(currentRow.eq(4).text(), 10);
+        team.wins = parseInt(currentRow.eq(5).text(), 10);
+        team.losses = parseInt(currentRow.eq(6).text(), 10);
+        team.games = currentRow.eq(7).text();
+        team.gameRatio = parseFloat(currentRow.eq(8).text());
+        team.scoreDifference = currentRow.eq(9).text();
+        team.scoreRatio = parseFloat(currentRow.eq(10).text());
+        teams.push(team);
+    }
+    
+    return {collectionName: collectionName, teams: teams}
+}
+
 (async () => {
     mongoose.connect(
         process.env.DB_CONNECTION,
@@ -44,7 +69,7 @@ const breakIntoTables = ($, nodeListArray, selector) => {
         const allTableRows = Array.from($('#content .mainContent table tbody tr'));
         allTableRows.unshift(mainRankingTitle);
         const tables = breakIntoTables($, allTableRows, "#FFFFFF");
-
+        convertTableToRankingModel($, tables[0])
         //testing the DB
         const ranking = new Ranking({
             title: 'String',

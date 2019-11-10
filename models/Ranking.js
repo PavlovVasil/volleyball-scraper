@@ -1,16 +1,16 @@
 const mongoose = require('mongoose');
 
 const RankingSchema = mongoose.Schema({
-    title: String,
-    team: String,
+    ranking: Number,
+    teamName: String,
     scorePlusCupScore: Number,
     cupScore: Number,
     matches: Number,
     wins: Number,
     losses: Number,
-    games: Number,
+    games: String,
     gameRatio: Number,
-    scoreDifference: Number,
+    scoreDifference: String,
     scoreRatio: Number
 })
 
