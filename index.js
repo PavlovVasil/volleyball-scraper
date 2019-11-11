@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const RankingSchema = require('./schema/RankingSchema');
 require('dotenv/config');
 
-//take nodeList and break it down into several separate tables. The first element in each table is its header.
+//take a nodeList and break it down into several separate tables. The first element in each table is its header.
 const breakIntoTables = ($, nodeListArray, selector) => {
     const result = [];
     let currentTable = [];
